@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书文案排版工具 — emoji 分隔·智能分段·话题标签生成 | Rednote & Moments Text Formatter</title>
+<meta name="description" id="metaDesc" content="免费在线文案排版工具：小红书 emoji 分隔符、长句智能分段、话题标签一键生成、标题正文实时字数统计；朋友圈居中排版、顶部留白防折叠。纯浏览器本地处理，文案不上传，一键复制即发。Free Rednote (Xiaohongshu) & WeChat Moments text formatter.">
+<link rel="canonical" href="https://rednote-formatter.kuige.me/">
+<link rel="alternate" hreflang="zh" href="https://rednote-formatter.kuige.me/?lang=zh">
+<link rel="alternate" hreflang="en" href="https://rednote-formatter.kuige.me/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://rednote-formatter.kuige.me/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ff2442'/%3E%3Ctext x='32' y='42' font-size='28' text-anchor='middle' fill='%23fff'%3E排%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rednote Formatter 文案排版">
+<meta property="og:title" id="ogTitle" content="小红书/朋友圈文案排版工具 — Rednote & Moments Text Formatter">
+<meta property="og:description" id="ogDesc" content="emoji 分隔·智能分段·话题标签生成·居中排版·防折叠，一键复制即发。100% 本地处理，文案不上传。">
+<meta property="og:url" content="https://rednote-formatter.kuige.me/">
+<meta property="og:image" content="https://rednote-formatter.kuige.me/og-image.png">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rednote Formatter — 小红书/朋友圈文案排版工具">
+<meta name="twitter:description" content="emoji dividers, smart line breaks, hashtag generator & centered Moments layout. 100% local & free.">
+<meta name="twitter:image" content="https://rednote-formatter.kuige.me/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"Rednote Formatter 文案排版","url":"https://rednote-formatter.kuige.me/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Free online text formatter for Rednote (Xiaohongshu) posts and WeChat Moments: emoji dividers, smart line breaking, hashtag generator, centered layout and anti-collapse top spacing. 100% client-side, no upload, no sign-up.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":["zh-CN","en"]},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is my text uploaded to a server?","acceptedAnswer":{"@type":"Answer","text":"No. All formatting runs 100% inside your browser. There is no account, no backend and no data collection."}},
+{"@type":"Question","name":"How do I publish the formatted text on Rednote (Xiaohongshu)?","acceptedAnswer":{"@type":"Answer","text":"Tap Copy, then long-press the body field on the Rednote publish page and paste. Line breaks and emoji are preserved. Paste the styled title into the title field."}},
+{"@type":"Question","name":"What are the character limits on Rednote?","acceptedAnswer":{"@type":"Answer","text":"Titles are limited to 20 characters and body text to 1000 characters. The tool counts both in real time and warns you before you exceed the limits."}},
+{"@type":"Question","name":"Why does the Moments layout use spaces to center text?","acceptedAnswer":{"@type":"Answer","text":"WeChat Moments has no rich text formatting, so full-width spaces are the only way to fake centered lines. Screen widths differ slightly per phone, so the tool offers narrow/standard/wide presets."}},
+{"@type":"Question","name":"How many hashtags should I use?","acceptedAnswer":{"@type":"Answer","text":"3 to 8 is the sweet spot: mix broad traffic tags, category tags and long-tail tags. Excessive tag stuffing can hurt recommendation."}}
+]}]}
+</script>
+<style>
+:root{
+  --bg:#f7f7f9;--card:#ffffff;--txt:#1d2129;--sub:#6b7280;--line:#e5e7eb;--soft:#f3f4f6;
+  --acc:#ff2442;--acc-soft:#fff0f2;--ok:#16a34a;--warn:#d97706;--danger:#dc2626;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
+  --radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#111318;--card:#1a1d24;--txt:#e8eaed;--sub:#9aa1ab;--line:#2a2e37;--soft:#22262f;
+  --acc:#ff4d6a;--acc-soft:#2b161b;--shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+}
+body[data-mode="mom"]{--acc:#07c160;--acc-soft:#eafaf0}
+[data-theme="dark"][data-mode="mom"]{--acc:#2fd57f;--acc-soft:#12291c}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;transition:background .25s,color .25s}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+a{color:var(--acc);text-decoration:none}
+/* header */
+header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:12px;height:58px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:.5px}
+.brand .logo{width:28px;height:28px;border-radius:8px;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px}
+.badges{display:flex;gap:8px;margin-left:6px;flex-wrap:wrap}
+.badge{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 9px;white-space:nowrap;background:var(--card)}
+.hspace{flex:1}
+.hbtn{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:9px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:600}
+.hbtn:hover{border-color:var(--acc);color:var(--acc)}
+/* hero */
+.hero{padding:34px 0 10px;text-align:center}
+.hero h1{font-size:clamp(22px,4vw,34px);font-weight:800;letter-spacing:.5px}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.hero p{color:var(--sub);margin-top:10px;font-size:15px;max-width:640px;margin-left:auto;margin-right:auto}
+/* tabs */
+.tabs{display:flex;justify-content:center;margin:24px 0 20px}
+.tabs .seg{display:flex;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+.tab{border:none;background:transparent;padding:9px 26px;border-radius:10px;font-size:15px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .18s}
+.tab.active{background:var(--card);color:var(--acc);box-shadow:var(--shadow)}
+/* main grid */
+.main{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;margin-bottom:28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .num{width:22px;height:22px;border-radius:7px;background:var(--acc-soft);color:var(--acc);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+label.lbl{display:block;font-size:13px;font-weight:600;color:var(--sub);margin:14px 0 6px}
+label.lbl:first-of-type{margin-top:0}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--txt);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;transition:border .15s}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--acc)}
+textarea{resize:vertical;min-height:180px;line-height:1.7}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.optrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.optrow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);cursor:pointer;user-select:none;margin-top:14px}
+.switch input{display:none}
+.switch .tk{width:38px;height:22px;border-radius:99px;background:var(--line);position:relative;transition:background .2s;flex:none}
+.switch .tk::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked+.tk{background:var(--acc)}
+.switch input:checked+.tk::after{left:19px}
+/* tag generator */
+.tagbox{margin-top:18px;border-top:1px dashed var(--line);padding-top:16px}
+.tagrow{display:flex;gap:10px}
+.tagrow input{flex:1}
+.tagrow select{width:86px;flex:none}
+.btn{border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn.acc{background:var(--acc);color:#fff}
+.btn.acc:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--soft);color:var(--txt);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--acc);color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;min-height:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--acc-soft);color:var(--acc);border-radius:99px;padding:4px 6px 4px 12px;font-size:13px;font-weight:600}
+.chip button{border:none;background:rgba(0,0,0,.06);color:inherit;width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center}
+[data-theme="dark"] .chip button{background:rgba(255,255,255,.12)}
+/* preview column */
+.previewCard{position:sticky;top:74px}
+.phone{width:100%;max-width:330px;margin:6px auto 0;border:1px solid var(--line);border-radius:30px;background:#fafafa;overflow:hidden;box-shadow:var(--shadow)}
+.pstatus{display:flex;justify-content:space-between;padding:8px 18px 4px;font-size:11px;color:#111;font-weight:600}
+.phead{display:flex;align-items:center;gap:8px;padding:8px 14px 10px;font-size:15px;font-weight:700;color:#fff}
+body[data-mode="xhs"] .phead{background:#ff2442}
+body[data-mode="mom"] .phead{background:#2e3238}
+.phead .phx{margin-left:auto;font-size:12px;opacity:.85}
+.pbody{height:400px;overflow-y:auto;padding:14px 16px 18px;font-size:14px;line-height:1.75;color:#222;white-space:pre-wrap;word-break:break-word;background:#fafafa}
+.ptitle{font-size:15px;font-weight:800;color:#111;margin-bottom:8px;white-space:pre-wrap}
+.ptag{color:#3b6df5;font-weight:600}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.stat{flex:1;min-width:70px;text-align:center;background:var(--soft);border-radius:10px;padding:8px 4px}
+.stat b{display:block;font-size:16px;font-weight:800}
+.stat span{font-size:11px;color:var(--sub)}
+.stat b.over{color:var(--danger)}
+.tip{display:none;font-size:12px;color:var(--warn);margin-top:8px}
+.tip.show{display:block}
+.hint{font-size:12px;color:var(--sub);margin-top:8px}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.actions .btn{flex:1;min-width:110px}
+/* guide */
+.guide{margin:10px 0 8px}
+.guide h2,.faqsec h2{font-size:22px;font-weight:800;text-align:center;margin:34px 0 20px}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.gcard .gi{font-size:22px}
+.gcard h3{font-size:15px;margin:8px 0 6px}
+.gcard p{font-size:13px;color:var(--sub)}
+/* faq */
+.faqsec{margin-bottom:30px}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+summary{padding:14px 18px;font-size:14px;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px}
+summary::before{content:"+";color:var(--acc);font-weight:800;font-size:16px;flex:none;transition:transform .2s}
+details[open] summary::before{transform:rotate(45deg)}
+details .a{padding:0 18px 14px 44px;font-size:13px;color:var(--sub)}
+/* footer */
+footer{border-top:1px solid var(--line);padding:26px 0 34px;text-align:center;font-size:13px;color:var(--sub)}
+footer .links{display:flex;gap:18px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+/* toast */
+#toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%) translateY(20px);background:var(--txt);color:var(--bg);padding:10px 22px;border-radius:99px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:99}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:920px){
+  .main{grid-template-columns:1fr}
+  .previewCard{position:static}
+  .badges{display:none}
+}
+@media(max-width:560px){
+  .optrow,.optrow3{grid-template-columns:1fr}
+  .tagrow{flex-wrap:wrap}
+}
+</style>
+</head>
+<body data-mode="xhs">
+<header>
+  <div class="wrap hbar">
+    <div class="brand"><span class="logo">排</span><span data-i18n="brand">文案排版</span></div>
+    <div class="badges">
+      <span class="badge" data-i18n="badgeLocal">🔒 100% 本地处理</span>
+      <span class="badge" data-i18n="badgeFree">🆓 免费无广告</span>
+    </div>
+    <div class="hspace"></div>
+    <button class="hbtn" id="btnLang" title="Language">EN</button>
+    <button class="hbtn" id="btnTheme" title="Theme">🌙</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <h1><em data-i18n="h1a">小红书 / 朋友圈</em><span data-i18n="h1b">文案排版工具</span></h1>
+    <p data-i18n="tagline">emoji 分隔 · 长句智能分段 · 话题标签一键生成 · 居中排版 · 防折叠留白，排好一键复制即发。所有处理都在浏览器本地完成，文案绝不上传。</p>
+  </section>
+
+  <div class="tabs">
+    <div class="seg">
+      <button class="tab active" id="tabXhs" data-i18n="tabXhs">小红书</button>
+      <button class="tab" id="tabMom" data-i18n="tabMom">朋友圈</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- editor -->
+    <div>
+      <div class="card" id="panelXhs">
+        <h2><span class="num">1</span><span data-i18n="editXhs">编辑文案（小红书）</span></h2>
+        <label class="lbl" for="inTitle"><span data-i18n="lblTitle">标题（20 字内最佳）</span></label>
+        <input type="text" id="inTitle" placeholder="例：3 个方法让我戒掉熬夜" data-i18n-ph="phTitle">
+        <label class="lbl" for="inBody"><span data-i18n="lblBody">正文（1000 字上限）</span></label>
+        <textarea id="inBody" placeholder="粘贴你的文案，多个段落用空行分隔…" data-i18n-ph="phBody"></textarea>
+
+        <div class="optrow3" style="margin-top:14px">
+          <div><label class="lbl" for="selTitleStyle"><span data-i18n="optTitle">标题样式</span></label>
+            <select id="selTitleStyle">
+              <option value="none" data-i18n="stNone">无修饰</option>
+              <option value="bracket" selected>【标题】</option>
+              <option value="fire">🔥标题</option>
+              <option value="sparkle">✨标题✨</option>
+              <option value="fb">🔥【标题】</option>
+            </select></div>
+          <div><label class="lbl" for="selDivider"><span data-i18n="optDivider">分隔符</span></label>
+            <select id="selDivider">
+              <option value="none" data-i18n="dvNone">无</option>
+              <option value="dots" selected>· · · · · ·</option>
+              <option value="wave">﹏﹏﹏﹏﹏</option>
+              <option value="line">————————</option>
+              <option value="leaf">🌿🌿🌿</option>
+              <option value="spark">✨✨✨</option>
+              <option value="star">⋆˚✿˚⋆</option>
+              <option value="circle">·˚ ✧ ˚·</option>
+              <option value="custom" data-i18n="dvCustom">自定义…</option>
+            </select></div>
+          <div><label class="lbl" for="selFreq"><span data-i18n="optFreq">分隔密度</span></label>
+            <select id="selFreq">
+              <option value="each" data-i18n="frEach">每段之间</option>
+              <option value="alt" selected data-i18n="frAlt">隔一段</option>
+            </select></div>
+        </div>
+        <div class="optrow3">
+          <div><label class="lbl" for="selEmoji"><span data-i18n="optEmoji">emoji 点缀</span></label>
+            <select id="selEmoji">
+              <option value="none" data-i18n="emOff">关闭</option>
+              <option value="natural" selected data-i18n="emNatural">自然（🔹）</option>
+              <option value="lively" data-i18n="emLively">活泼（混搭）</option>
+            </select></div>
+          <div><label class="lbl" for="selSpacing"><span data-i18n="optSpacing">行距</span></label>
+            <select id="selSpacing">
+              <option value="tight" data-i18n="spTight">紧凑</option>
+              <option value="loose" selected data-i18n="spLoose">宽松（推荐）</option>
+            </select></div>
+          <div><label class="lbl" for="inCustomDiv"><span data-i18n="lblCustom">自定义分隔符</span></label>
+            <input type="text" id="inCustomDiv" placeholder="例：🍓🍓🍓" data-i18n-ph="phCustom"></div>
+        </div>
+        <label class="switch"><input type="checkbox" id="ckBrk" checked><span class="tk"></span><span data-i18n="ckBrk">长句智能分行（把大段拆成短行，更易读）</span></label>
+
+        <div class="tagbox">
+          <h2 style="margin-bottom:10px"><span class="num">#</span><span data-i18n="lblTags">话题标签生成器</span></h2>
+          <div class="tagrow">
+            <input type="text" id="inTopic" placeholder="输入主题，如：咖啡 / 穿搭 / 旅行" data-i18n-ph="phTags">
+            <select id="selTagCount">
+              <option value="4">4</option>
+              <option value="6" selected>6</option>
+              <option value="8">8</option>
+              <option value="10">10</option>
+            </select>
+            <button class="btn acc" id="btnGen" data-i18n="btnGen">生成</button>
+          </div>
+          <div class="chips" id="chipBox"></div>
+          <div class="hint" id="tipTagHint" data-i18n="tipTagHint">提示：按「大流量 + 品类 + 长尾」组合 3–8 个最有效；点 × 可删除标签。</div>
+        </div>
+      </div>
+
+      <div class="card" id="panelMom" hidden>
+        <h2><span class="num">1</span><span data-i18n="editMom">编辑文案（朋友圈）</span></h2>
+        <label class="lbl" for="inMomBody"><span data-i18n="lblMomBody">文案</span></label>
+        <textarea id="inMomBody" placeholder="粘贴朋友圈文案…" data-i18n-ph="phMomBody"></textarea>
+        <div class="optrow3" style="margin-top:14px">
+          <div><label class="lbl" for="selAlign"><span data-i18n="optAlign">对齐</span></label>
+            <select id="selAlign">
+              <option value="center" selected data-i18n="alCenter">居中</option>
+              <option value="left" data-i18n="alLeft">左对齐</option>
+            </select></div>
+          <div><label class="lbl" for="selCenterW"><span data-i18n="optWidth">居中宽度</span></label>
+            <select id="selCenterW">
+              <option value="20" data-i18n="wNarrow">窄（小屏）</option>
+              <option value="24" selected data-i18n="wStd">标准</option>
+              <option value="28" data-i18n="wWide">宽（大屏）</option>
+            </select></div>
+          <div><label class="lbl" for="selBlankTop"><span data-i18n="optBlank">顶部留白</span></label>
+            <select id="selBlankTop">
+              <option value="0" selected data-i18n="btNone">不加</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+            </select></div>
+        </div>
+        <div class="optrow">
+          <div><label class="lbl" for="selMomDiv"><span data-i18n="optDivider2">分节符</span></label>
+            <select id="selMomDiv">
+              <option value="none" selected data-i18n="dvNone">无</option>
+              <option value="dots">· · · · · ·</option>
+              <option value="wave">﹏﹏﹏﹏﹏</option>
+              <option value="line">————————</option>
+              <option value="star">⋆˚✿˚⋆</option>
+            </select></div>
+          <div></div>
+        </div>
+        <label class="switch"><input type="checkbox" id="ckFirst"><span class="tk"></span><span data-i18n="ckFirst">首行重点（拉开字距，适合短句）</span></label>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2><span class="num">3</span><span data-i18n="lblAction">操作</span></h2>
+        <div class="actions">
+          <button class="btn acc" id="btnCopyAll" data-i18n="btnCopyAll">复制全部</button>
+          <button class="btn ghost" id="btnCopyBody" data-i18n="btnCopyBody">只复制正文</button>
+          <button class="btn ghost" id="btnDemo" data-i18n="btnDemo">填入示例</button>
+          <button class="btn ghost" id="btnClear" data-i18n="btnClear">清空</button>
+        </div>
+        <div class="hint" id="tipShortcut" data-i18n="tipShortcut">快捷键：⌘/Ctrl + Enter 复制全部</div>
+      </div>
+    </div>
+
+    <!-- preview -->
+    <div class="card previewCard">
+      <h2><span class="num">2</span><span data-i18n="lblPreview">实时预览</span></h2>
+      <div class="phone">
+        <div class="pstatus"><span>9:41</span><span>5G ▮</span></div>
+        <div class="phead"><span id="phName">小红书</span><span class="phx">✕</span></div>
+        <div class="pbody"><div class="ptitle" id="pvTitle"></div><span id="pvBody"></span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="stTitle">0</b><span data-i18n="stTitle">标题字数</span></div>
+        <div class="stat"><b id="stBody">0</b><span data-i18n="stBody">正文字数</span></div>
+        <div class="stat"><b id="stLines">0</b><span data-i18n="stLines">行数</span></div>
+        <div class="stat"><b id="stTags">0</b><span data-i18n="stTags">标签数</span></div>
+      </div>
+      <div class="tip" id="tipTitleOver" data-i18n="tipTitleOver">⚠️ 标题超过 20 字，发布时会被截断</div>
+      <div class="tip" id="tipBodyOver" data-i18n="tipBodyOver">⚠️ 正文超过 1000 字上限</div>
+      <div class="tip" id="tipMomFold" data-i18n="tipMomFold">ℹ️ 行数较多，朋友圈会折叠显示「全文」按钮</div>
+    </div>
+  </div>
+
+  <!-- guide -->
+  <section class="guide">
+    <h2 data-i18n="guideTitle">排版心法</h2>
+    <div class="ggrid">
+      <div class="gcard"><div class="gi">⏱️</div><h3 data-i18n="g1t">三秒法则</h3><p data-i18n="g1d">刷信息流的人只会给你三秒。首行放钩子：数字、反差或痛点，让 ta 停下来，再谈其他。</p></div>
+      <div class="gcard"><div class="gi">🧱</div><h3 data-i18n="g2t">爆款结构</h3><p data-i18n="g2d">钩子标题 → 空行开场 → 分点干货（每点一行）→ 互动引导（提问、求收藏）→ 话题标签收尾。</p></div>
+      <div class="gcard"><div class="gi">✨</div><h3 data-i18n="g3t">emoji 节奏</h3><p data-i18n="g3d">emoji 是视觉锚点，不是装饰墙：每 3–4 行出现一次即可；分隔符全篇只用一种，保持统一。</p></div>
+      <div class="gcard"><div class="gi">💬</div><h3 data-i18n="g4t">朋友圈折叠术</h3><p data-i18n="g4d">朋友圈没有富文本：居中靠全角空格，重点靠拉开字距；顶部留白几行，长文案会显示「全文」而不是压成一行。</p></div>
+      <div class="gcard"><div class="gi">🏷️</div><h3 data-i18n="g5t">标签组合</h3><p data-i18n="g5d">大流量标签引曝光（#干货分享）+ 品类标签引精准人群（#美食探店）+ 长尾标签引搜索（#厦门咖啡店），3–8 个为宜。</p></div>
+      <div class="gcard"><div class="gi">🌍</div><h3 data-i18n="g6t">REDnote 国际版</h3><p data-i18n="g6d">切换到 English 界面，标签生成器会自动换成英文标签库（#fyp #foodie #coffeetime…），直接服务海外 REDnote 创作者。</p></div>
+    </div>
+  </section>
+
+  <!-- faq -->
+  <section class="faqsec">
+    <h2 data-i18n="faqTitle">常见问题</h2>
+    <details open><summary data-i18n="faq1q">文案会被上传到服务器吗？</summary><div class="a" data-i18n="faq1a">不会。本工具 100% 在浏览器本地完成排版，无账号、无后端、无数据收集，断网也能用。</div></details>
+    <details><summary data-i18n="faq2q">复制后如何发布到小红书？</summary><div class="a" data-i18n="faq2a">打开小红书 App 发布页，在正文输入框长按粘贴即可，换行与 emoji 都会保留；标题粘贴到标题栏，标签随正文一起粘贴即可自动识别。</div></details>
+    <details><summary data-i18n="faq3q">小红书对字数有什么限制？</summary><div class="a" data-i18n="faq3a">标题最多 20 字，正文最多 1000 字。工具会实时计数，标题超 20 字、正文超 1000 字时给出红色提醒。</div></details>
+    <details><summary data-i18n="faq4q">朋友圈为什么用空格来居中？</summary><div class="a" data-i18n="faq4a">朋友圈不支持富文本，全角空格是模拟居中的唯一办法。不同手机屏宽略有差异，可用「窄 / 标准 / 宽」三档校准。</div></details>
+    <details><summary data-i18n="faq5q">话题标签带几个合适？</summary><div class="a" data-i18n="faq5a">建议 3–8 个，按「大流量 + 品类 + 长尾」组合；过多标签可能被判定为堆砌，反而影响推荐。</div></details>
+  </section>
+</div>
+
+<footer>
+  <div class="links">
+    <a href="https://kuige.me/" data-i18n="footPortfolio">kuige.me 工具矩阵</a>
+    <a href="https://github.com/Tliens/rednote-formatter">GitHub</a>
+  </div>
+  <p data-i18n="footPrivacy">隐私说明：所有排版 100% 在你的浏览器内完成，文案不会上传到任何服务器。</p>
+  <p style="margin-top:6px">© 2026 kuige.me</p>
+</footer>
+
+<div id="toast">已复制 ✓</div>
+
+<script type="module">
+/* ================= Rednote Formatter — 100% client-side ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ---------- i18n dictionary ---------- */
+const L = {
+zh: {
+  brand:"文案排版", badgeLocal:"🔒 100% 本地处理", badgeFree:"🆓 免费无广告",
+  h1a:"小红书 / 朋友圈", h1b:"文案排版工具",
+  tagline:"emoji 分隔 · 长句智能分段 · 话题标签一键生成 · 居中排版 · 防折叠留白，排好一键复制即发。所有处理都在浏览器本地完成，文案绝不上传。",
+  tabXhs:"小红书", tabMom:"朋友圈",
+  editXhs:"编辑文案（小红书）", editMom:"编辑文案（朋友圈）",
+  lblTitle:"标题（20 字内最佳）", phTitle:"例：3 个方法让我戒掉熬夜",
+  lblBody:"正文（1000 字上限）", phBody:"粘贴你的文案，多个段落用空行分隔…",
+  lblMomBody:"文案", phMomBody:"粘贴朋友圈文案…",
+  optTitle:"标题样式", stNone:"无修饰",
+  optDivider:"分隔符", optDivider2:"分节符", dvNone:"无", dvCustom:"自定义…",
+  lblCustom:"自定义分隔符", phCustom:"例：🍓🍓🍓",
+  optFreq:"分隔密度", frEach:"每段之间", frAlt:"隔一段",
+  optEmoji:"emoji 点缀", emOff:"关闭", emNatural:"自然（🔹）", emLively:"活泼（混搭）",
+  optSpacing:"行距", spTight:"紧凑", spLoose:"宽松（推荐）",
+  ckBrk:"长句智能分行（把大段拆成短行，更易读）",
+  lblTags:"话题标签生成器", phTags:"输入主题，如：咖啡 / 穿搭 / 旅行",
+  btnGen:"生成", tipTagHint:"提示：按「大流量 + 品类 + 长尾」组合 3–8 个最有效；点 × 可删除标签。",
+  optAlign:"对齐", alCenter:"居中", alLeft:"左对齐",
+  optWidth:"居中宽度", wNarrow:"窄（小屏）", wStd:"标准", wWide:"宽（大屏）",
+  optBlank:"顶部留白", btNone:"不加", ckFirst:"首行重点（拉开字距，适合短句）",
+  lblAction:"操作", btnCopyAll:"复制全部", btnCopyBody:"只复制正文", btnDemo:"填入示例", btnClear:"清空",
+  tipShortcut:"快捷键：⌘/Ctrl + Enter 复制全部",
+  lblPreview:"实时预览", stTitle:"标题字数", stBody:"正文字数", stLines:"行数", stTags:"标签数",
+  tipTitleOver:"⚠️ 标题超过 20 字，发布时会被截断", tipBodyOver:"⚠️ 正文超过 1000 字上限",
+  tipMomFold:"ℹ️ 行数较多，朋友圈会折叠显示「全文」按钮",
+  guideTitle:"排版心法",
+  g1t:"三秒法则", g1d:"刷信息流的人只会给你三秒。首行放钩子：数字、反差或痛点，让 ta 停下来，再谈其他。",
+  g2t:"爆款结构", g2d:"钩子标题 → 空行开场 → 分点干货（每点一行）→ 互动引导（提问、求收藏）→ 话题标签收尾。",
+  g3t:"emoji 节奏", g3d:"emoji 是视觉锚点，不是装饰墙：每 3–4 行出现一次即可；分隔符全篇只用一种，保持统一。",
+  g4t:"朋友圈折叠术", g4d:"朋友圈没有富文本：居中靠全角空格，重点靠拉开字距；顶部留白几行，长文案会显示「全文」而不是压成一行。",
+  g5t:"标签组合", g5d:"大流量标签引曝光（#干货分享）+ 品类标签引精准人群（#美食探店）+ 长尾标签引搜索（#厦门咖啡店），3–8 个为宜。",
+  g6t:"REDnote 国际版", g6d:"切换到 English 界面，标签生成器会自动换成英文标签库（#fyp #foodie #coffeetime…），直接服务海外 REDnote 创作者。",
+  faqTitle:"常见问题",
+  faq1q:"文案会被上传到服务器吗？", faq1a:"不会。本工具 100% 在浏览器本地完成排版，无账号、无后端、无数据收集，断网也能用。",
+  faq2q:"复制后如何发布到小红书？", faq2a:"打开小红书 App 发布页，在正文输入框长按粘贴即可，换行与 emoji 都会保留；标题粘贴到标题栏，标签随正文一起粘贴即可自动识别。",
+  faq3q:"小红书对字数有什么限制？", faq3a:"标题最多 20 字，正文最多 1000 字。工具会实时计数，标题超 20 字、正文超 1000 字时给出红色提醒。",
+  faq4q:"朋友圈为什么用空格来居中？", faq4a:"朋友圈不支持富文本，全角空格是模拟居中的唯一办法。不同手机屏宽略有差异，可用「窄 / 标准 / 宽」三档校准。",
+  faq5q:"话题标签带几个合适？", faq5a:"建议 3–8 个，按「大流量 + 品类 + 长尾」组合；过多标签可能被判定为堆砌，反而影响推荐。",
+  footPortfolio:"kuige.me 工具矩阵",
+  footPrivacy:"隐私说明：所有排版 100% 在你的浏览器内完成，文案不会上传到任何服务器。",
+  copied:"已复制 ✓", cleared:"已清空", phXhs:"小红书", phMom:"朋友圈",
+  metaTitle:"小红书文案排版工具 — emoji 分隔·智能分段·话题标签生成 | Rednote & Moments Text Formatter",
+  metaDesc:"免费在线文案排版工具：小红书 emoji 分隔符、长句智能分段、话题标签一键生成、标题正文实时字数统计；朋友圈居中排版、顶部留白防折叠。纯浏览器本地处理，文案不上传，一键复制即发。Free Rednote (Xiaohongshu) & WeChat Moments text formatter.",
+  ogT:"小红书/朋友圈文案排版工具 — Rednote & Moments Text Formatter",
+  ogD:"emoji 分隔·智能分段·话题标签生成·居中排版·防折叠，一键复制即发。100% 本地处理，文案不上传。",
+  demoTitle:"3 个方法让我戒掉熬夜",
+  demoBody:"曾经我也天天刷手机到两点，白天靠咖啡续命。\n后来试了三个月，现在 11 点准时困。\n\n方法一：把手机充电器移到客厅\n床边没有手机，就没有睡前刷的理由\n\n方法二：固定起床时间\n不赖床，晚上自然就困得早\n\n方法三：睡前一小时调暗灯光\n光线暗下来，褪黑素就开始工作\n\n坚持一周就能感觉到变化，评论区打卡监督我！",
+  demoMom:"把日子过成诗\n不难\n难的是天天过成诗\n\n新的一周\n也要好好吃饭 好好睡觉"
+},
+en: {
+  brand:"Copy Formatter", badgeLocal:"🔒 100% local", badgeFree:"🆓 Free, no ads",
+  h1a:"Rednote & Moments", h1b:" Text Formatter",
+  tagline:"Emoji dividers, smart line breaking, one-click hashtag generation, centered Moments layout and anti-collapse spacing — format, copy, post. Everything runs locally in your browser; your text is never uploaded.",
+  tabXhs:"Rednote", tabMom:"Moments",
+  editXhs:"Compose (Rednote)", editMom:"Compose (Moments)",
+  lblTitle:"Title (20 chars max)", phTitle:"e.g. 3 tricks that fixed my sleep",
+  lblBody:"Body (1000 chars max)", phBody:"Paste your copy, separate paragraphs with a blank line…",
+  lblMomBody:"Text", phMomBody:"Paste your Moments text…",
+  optTitle:"Title style", stNone:"Plain",
+  optDivider:"Divider", optDivider2:"Divider", dvNone:"None", dvCustom:"Custom…",
+  lblCustom:"Custom divider", phCustom:"e.g. 🍓🍓🍓",
+  optFreq:"Density", frEach:"Every block", frAlt:"Every other",
+  optEmoji:"Emoji accents", emOff:"Off", emNatural:"Natural (🔹)", emLively:"Lively (mixed)",
+  optSpacing:"Spacing", spTight:"Tight", spLoose:"Loose (recommended)",
+  ckBrk:"Smart line breaking (split long paragraphs into short lines)",
+  lblTags:"Hashtag generator", phTags:"Topic, e.g. coffee / fashion / travel",
+  btnGen:"Generate", tipTagHint:"Tip: mix broad + category + long-tail tags, 3–8 works best. Click × to remove.",
+  optAlign:"Alignment", alCenter:"Centered", alLeft:"Left",
+  optWidth:"Center width", wNarrow:"Narrow", wStd:"Standard", wWide:"Wide",
+  optBlank:"Top spacing", btNone:"None", ckFirst:"Stretch first line (great for hooks)",
+  lblAction:"Actions", btnCopyAll:"Copy all", btnCopyBody:"Copy body only", btnDemo:"Load demo", btnClear:"Clear",
+  tipShortcut:"Shortcut: ⌘/Ctrl + Enter to copy all",
+  lblPreview:"Live preview", stTitle:"Title", stBody:"Body", stLines:"Lines", stTags:"Tags",
+  tipTitleOver:"⚠️ Title exceeds 20 characters and will be truncated",
+  tipBodyOver:"⚠️ Body exceeds the 1000-character limit",
+  tipMomFold:"ℹ️ Long text: Moments will collapse it behind a “Full text” button",
+  guideTitle:"Formatting Playbook",
+  g1t:"The 3-second rule", g1d:"Feed scrollers give you three seconds. Open with a hook — a number, a contrast or a pain point — before anything else.",
+  g2t:"Winning structure", g2d:"Hook title → airy opening → bullet points (one idea per line) → call to action (ask, invite saves) → hashtags at the end.",
+  g3t:"Emoji rhythm", g3d:"Emoji are visual anchors, not wallpaper: one every 3–4 lines is enough. Stick to a single divider style throughout.",
+  g4t:"Moments layout tricks", g4d:"Moments has no rich text: fake centering with full-width spaces, emphasize with letter spacing, and add top blank lines so long posts get a “Full text” button instead of one squeezed line.",
+  g5t:"Hashtag mix", g5d:"Broad tags for reach (#fyp) + category tags for the right audience (#foodie) + long-tail tags for search (#seattlecoffee). 3–8 total.",
+  g6t:"Bilingual tags", g6d:"Switch the UI to English and the generator swaps to an English hashtag library (#fyp #foodie #coffeetime…) for international REDnote creators.",
+  faqTitle:"FAQ",
+  faq1q:"Is my text uploaded to a server?", faq1a:"No. All formatting runs 100% inside your browser. There is no account, no backend and no data collection — it even works offline.",
+  faq2q:"How do I post the formatted text on Rednote?", faq2a:"Tap Copy, then long-press the body field on the Rednote publish page and paste. Line breaks and emoji are preserved; paste the styled title into the title field.",
+  faq3q:"What are the character limits on Rednote?", faq3a:"Titles are limited to 20 characters and body text to 1000 characters. The tool counts both in real time and warns you when you exceed the limits.",
+  faq4q:"Why does the Moments layout use spaces to center text?", faq4a:"WeChat Moments has no rich text formatting, so full-width spaces are the only way to fake centered lines. Screen widths differ slightly per phone, so the tool offers narrow/standard/wide presets.",
+  faq5q:"How many hashtags should I use?", faq5a:"3 to 8 is the sweet spot: mix broad traffic tags, category tags and long-tail tags. Excessive tag stuffing can hurt recommendation.",
+  footPortfolio:"kuige.me tool matrix",
+  footPrivacy:"Privacy: all formatting happens 100% inside your browser. Your text never leaves your device.",
+  copied:"Copied ✓", cleared:"Cleared", phXhs:"Rednote", phMom:"Moments",
+  metaTitle:"Rednote & Moments Text Formatter — Emoji Dividers, Smart Breaks & Hashtags | 小红书文案排版工具",
+  metaDesc:"Free online text formatter for Rednote (Xiaohongshu) & WeChat Moments: emoji dividers, smart line breaking, hashtag generator, centered layout, anti-collapse spacing. 100% client-side, nothing uploaded. 小红书/朋友圈文案排版工具。",
+  ogT:"Rednote & Moments Text Formatter — 小红书文案排版工具",
+  ogD:"Emoji dividers, smart line breaks, hashtag generator & centered Moments layout. 100% local & free.",
+  demoTitle:"3 tricks that fixed my sleep",
+  demoBody:"I used to scroll until 2 a.m. and run on coffee all day.\nAfter three months of experimenting, I now get sleepy at 11 sharp.\n\nTrick 1: move the charger out of the bedroom\nNo phone at the bedside, no reason to scroll\n\nTrick 2: fix your wake-up time\nNo snoozing means you get tired earlier at night\n\nTrick 3: dim the lights an hour before bed\nWhen light drops, melatonin starts working\n\nYou'll feel the difference within a week — comment to keep me accountable!",
+  demoMom:"Live slowly,\narrive surely.\n\nNew week:\neat well, sleep well."
+}};
+
+/* ---------- hashtag library (zh + en) ---------- */
+const TAGLIB = {
+zh: {
+  flow:["#干货分享","#记录生活","#今日分享","#宝藏","#生活碎片","#治愈系","#好物分享","#新手必看","#分享欲","#日常plog"],
+  derived:q=>[`#${q}分享`,`#${q}推荐`,`#${q}教程`],
+  cats:{
+    美食:{kw:["美食","吃","餐厅","探店","做饭","食谱","烘焙","奶茶","火锅","菜"],tags:["#美食探店","#美食日常","#吃货日常","#探店","#今天吃什么","#自制美食","#烘焙日记","#美食推荐","#宝藏餐厅","#下厨房"]},
+    穿搭:{kw:["穿搭","衣服","时尚","搭配","衣橱","ootd"],tags:["#穿搭","#OOTD","#每日穿搭","#穿搭日记","#显瘦穿搭","#平价穿搭","#穿搭灵感","#女生穿搭","#换季穿搭","#衣橱整理"]},
+    美妆:{kw:["美妆","化妆","护肤","口红","粉底","皮肤","变美"],tags:["#美妆","#护肤","#化妆教程","#护肤日常","#变美","#口红色号","#新手化妆","#平价美妆","#皮肤管理","#美妆好物"]},
+    旅行:{kw:["旅行","旅游","出发","攻略","自由行","citywalk","周末","city walk"],tags:["#旅行","#旅行攻略","#自由行","#周末去哪儿","#citywalk","#旅行日记","#小众旅行地","#出片圣地","#旅行vlog","#边走边拍"]},
+    咖啡:{kw:["咖啡","拿铁","美式","手冲","咖啡馆","拉花"],tags:["#咖啡","#咖啡探店","#咖啡馆","#手冲咖啡","#拿铁","#咖啡日常","#宝藏咖啡店","#自制咖啡","#咖啡拉花","#咖啡因"]},
+    健身:{kw:["健身","运动","减脂","增肌","跑步","瑜伽","马甲线","减肥"],tags:["#健身","#减脂","#运动日常","#健身房","#跑步打卡","#瑜伽","#马甲线","#增肌","#自律","#运动打卡"]},
+    学习:{kw:["学习","考研","考公","笔记","自习","英语","读书","上岸"],tags:["#学习","#学习方法","#考研","#考公","#学习打卡","#英语学习","#读书笔记","#自习","#上岸","#干货笔记"]},
+    职场:{kw:["职场","工作","面试","简历","老板","打工人","跳槽"],tags:["#职场","#职场干货","#打工人","#面试","#简历","#工作日常","#职场新人","#跳槽","#办公技巧","#下班后"]},
+    育儿:{kw:["育儿","宝宝","带娃","孩子","亲子","幼儿园","母乳"],tags:["#育儿","#带娃日常","#宝宝","#亲子日常","#育儿干货","#新手妈妈","#幼儿园","#亲子游戏","#母婴好物","#哄睡"]},
+    家居:{kw:["家居","装修","收纳","房间","出租屋","改造","家务"],tags:["#家居","#装修日记","#收纳","#出租屋改造","#房间改造","#家居好物","#收纳整理","#软装","#家务","#小家"]},
+    摄影:{kw:["摄影","拍照","相机","镜头","出片","修图","胶片"],tags:["#摄影","#摄影日常","#拍照技巧","#相机","#胶片","#修图","#出片","#手机摄影","#镜头","#摄影教程"]},
+    数码:{kw:["数码","手机","电脑","耳机","iphone","平板","键盘","科技"],tags:["#数码","#数码好物","#手机","#电脑","#耳机","#科技数码","#iphone","#效率工具","#键盘","#桌面搭建"]},
+    宠物:{kw:["宠物","猫","狗","猫咪","狗狗","撸猫","铲屎官"],tags:["#宠物","#猫咪","#狗狗","#铲屎官日常","#撸猫","#萌宠","#猫粮","#养猫日常","#小狗","#宠物日常"]},
+    情感:{kw:["情感","恋爱","婚姻","分手","单身","自愈","心情"],tags:["#情感","#恋爱","#心情","#自我成长","#治愈","#情感树洞","#亲密关系","#单身","#爱自己","#情绪管理"]},
+    副业:{kw:["副业","搞钱","赚钱","变现","创业","自媒体","涨粉"],tags:["#副业","#搞钱","#副业赚钱","#自媒体","#普通人搞钱","#被动收入","#个人成长","#创业","#小红书运营","#涨粉"]}
+  }
+},
+en: {
+  flow:["#fyp","#foryou","#REDnote","#daily","#lifestyle","#inspo","#tipsandtricks","#dailylife","#goodvibes","#sharing"],
+  derived:q=>{const s=q.replace(/[\s]+/g,"");return [`#${s}tips`,`#${s}share`,`#${s}vibes`];},
+  cats:{
+    Food:{kw:["food","eat","restaurant","recipe","baking","cook","dinner","lunch"],tags:["#foodie","#food","#recipes","#homecooking","#baking","#foodphotography","#eeeeeats","#yum","#foodlover","#cooking"]},
+    Fashion:{kw:["fashion","outfit","ootd","clothes","style","wardrobe"],tags:["#ootd","#fashion","#outfitinspo","#styleinspo","#dailyoutfit","#capsulewardrobe","#thriftfinds","#outfitideas","#fashiondiary","#whatiwore"]},
+    Beauty:{kw:["beauty","makeup","skincare","lipstick","skin","glow"],tags:["#makeup","#skincare","#beauty","#makeuptutorial","#skincareroutine","#glowup","#makeuplooks","#beautytips","#newmakeup","#selfcare"]},
+    Travel:{kw:["travel","trip","vacation","citywalk","weekend","hike"],tags:["#travel","#travelgram","#wanderlust","#citywalk","#traveltips","#hiddengems","#travelphotography","#weekendtrip","#solotravel","#travelblogger"]},
+    Coffee:{kw:["coffee","latte","espresso","brew","cafe"],tags:["#coffee","#coffeelover","#coffeetime","#specialtycoffee","#latte","#homecafe","#coffeeshop","#barista","#coffeegram","#brewathome"]},
+    Fitness:{kw:["fitness","gym","workout","run","yoga","muscle","weight"],tags:["#fitness","#gym","#workout","#fitfam","#running","#yoga","#homeworkout","#gains","#fitnessjourney","#progress"]},
+    Study:{kw:["study","exam","notes","english","learn","school","college"],tags:["#study","#studymotivation","#studynotes","#examprep","#studytips","#learnenglish","#studying","#productivity","#notes","#studygram"]},
+    Work:{kw:["work","job","career","interview","resume","office","colleague"],tags:["#career","#worklife","#jobinterview","#careeradvice","#9to5","#worktips","#corporate","#resumetips","#workmotivation","#office"]},
+    Parenting:{kw:["kids","baby","toddler","parent","mom","dad","family"],tags:["#parenting","#momlife","#dadlife","#toddler","#baby","#familylife","#parentingtips","#newmom","#kidsactivities","#parenthood"]},
+    Home:{kw:["home","apartment","decor","organize","clean","room"],tags:["#homedecor","#apartmenttherapy","#homeorganization","#interiordesign","#cozyhome","#declutter","#smallapartment","#cleaning","#homediy","#slowliving"]},
+    Photography:{kw:["photo","camera","lens","shoot","film","edit"],tags:["#photography","#photooftheday","#camera","#filmphotography","#photoshoot","#streetphotography","#mobilephotography","#photo","#lens","#photographytips"]},
+    Tech:{kw:["tech","phone","laptop","headphones","gadget","setup","apple","android"],tags:["#tech","#techgadgets","#smartphone","#laptops","#headphones","#desksetup","#techreview","#gadget","#productivity","#unboxing"]},
+    Pets:{kw:["pet","cat","dog","puppy","kitten","animal"],tags:["#pets","#cat","#dog","#petlovers","#catlover","#dogmom","#petlife","#adoptdontshop","#puppy","#kitten"]},
+    Relationships:{kw:["love","relationship","healing","feelings","date"," breakup"],tags:["#relationships","#love","#selflove","#healing","#growth","#mindset","#emotions","#selfcare","#lifelessons","#journey"]},
+    SideHustle:{kw:["sidehustle","money","income","business","creator","freelance","monetize"],tags:["#sidehustle","#makemoneyonline","#creator","#smallbusiness","#passiveincome","#contentcreator","#hustle","#entrepreneur","#freelance","#moneymindset"]}
+  }
+}};
+
+/* ---------- divider presets ---------- */
+const DIVS = {none:"",dots:"· · · · · ·",wave:"﹏﹏﹏﹏﹏",line:"————————",leaf:"🌿🌿🌿",spark:"✨✨✨",star:"⋆˚✿˚⋆",circle:"·˚ ✧ ˚·"};
+const TITLE_FN = {none:t=>t,bracket:t=>`【${t}】`,fire:t=>`🔥${t}`,sparkle:t=>`✨${t}✨`,fb:t=>`🔥【${t}】`};
+const MARKERS = {natural:["🔹"],lively:["🔸","✅","💫","⚡","🌟"]};
+
+/* ---------- state ---------- */
+const S = {lang:"zh",theme:"auto",mode:"xhs",
+  xhs:{title:"",titleStyle:"bracket",body:"",divider:"dots",freq:"alt",emoji:"natural",spacing:"loose",brk:true,customDiv:"",tags:[]},
+  mom:{body:"",align:"center",centerW:24,blankTop:0,first:false,divider:"none"}};
+const DRAFT_KEY = "rf_draft_v1";
+
+/* ---------- helpers ---------- */
+const chars = s => [...(s||"").replace(/\s/g,"")].length;
+function units(s){let n=0;for(const c of s){const cp=c.codePointAt(0);n+=(cp>=0x2E80&&cp<=0x9FFF)||(cp>=0xF900&&cp<=0xFAFF)||(cp>=0xFF00&&cp<=0xFFEF)||cp===0x3000?2:1;}return n;}
+function splitParas(t){return (t||"").split(/\n\s*\n+/).map(p=>p.replace(/[ \t　]+/g,m=>m.includes("　")?m:" ").trim()).filter(Boolean);}
+function breakPara(p,target){
+  if([...p].length<=target) return [p];
+  const pts=new Set(["，","。","！","？","；","：",",",".","!","?",";",":","、"," "]);
+  const out=[];let cur="";
+  for(const ch of p){
+    cur+=ch;
+    if([...cur].length>=target-4 && pts.has(ch)){out.push(cur.trim());cur="";}
+  }
+  if(cur.trim())out.push(cur.trim());
+  return out;
+}
+function decorate(lines,mode){
+  const mk=MARKERS[mode]||MARKERS.natural;
+  let bi=0;
+  return lines.map((ln,i)=>{
+    const m=ln.match(/^\s*(?:[-*•·]|\d+\s*[.、)])\s+(.+)/);
+    if(m){const mkv=mk[Math.min(bi,mk.length-1)];bi++;return `${mkv} ${m[1]}`;}
+    if(mode==="lively" && i===0 && [...ln].length<=16 && !/^[#🔥✨【]/.test(ln)) return `🔥${ln}`;
+    return ln;
+  });
+}
+function centerLine(line,maxC){
+  const maxU=maxC*2, u=units(line);
+  if(u>maxU-4) return line;
+  const pad=Math.max(0,Math.round((maxU-u)/4));
+  return "　".repeat(pad)+line;
+}
+function escapeHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ---------- formatters ---------- */
+function divText(which,custom){
+  if(which==="custom") return (custom||"").trim();
+  return DIVS[which]||"";
+}
+function formatXhs(){
+  const x=S.xhs;
+  let groups=splitParas(x.body).map(p=> x.brk? p.split("\n").flatMap(ln=>breakPara(ln,26)):[p]);
+  if(x.emoji!=="none") groups=groups.map(g=>decorate(g,x.emoji));
+  const inSep = x.spacing==="loose" ? "\n\n" : "\n";
+  const parts=[];
+  groups.forEach((g,i)=>{
+    parts.push(g.join(inSep));
+    if(i<groups.length-1){
+      const dv=divText(x.divider,x.customDiv);
+      const show = dv && (x.freq==="each" || i%2===1);
+      parts.push(show? dv : "");
+    }
+  });
+  const body=parts.filter(p=>p!=="").join("\n\n");
+  const title=x.title.trim()? TITLE_FN[x.titleStyle](x.title.trim()) : "";
+  const tags=x.tags.length? x.tags.join(" ") : "";
+  return {title,body,tags,full:[title,body,tags].filter(Boolean).join("\n\n")};
+}
+function formatMom(){
+  const m=S.mom;
+  let paras=splitParas(m.body);
+  if(m.first && paras.length){
+    const ls=paras[0].split("\n");
+    if([...ls[0]].length<=8) ls[0]=[...ls[0]].join("　");
+    paras[0]=ls.join("\n");
+  }
+  if(m.align==="center") paras=paras.map(p=>p.split("\n").map(ln=>centerLine(ln,m.centerW)).join("\n"));
+  const dv=DIVS[m.divider]||"";
+  let body=paras.join(dv? `\n\n${dv}\n\n` : "\n\n");
+  const top=Number(m.blankTop||0);
+  if(top>0) body="\n".repeat(top)+body;
+  return {title:"",body,tags:"",full:body};
+}
+
+/* ---------- render ---------- */
+function render(){
+  const out=S.mode==="xhs"? formatXhs():formatMom();
+  $("#pvTitle").textContent=out.title;
+  $("#pvTitle").style.display=out.title?"block":"none";
+  $("#pvBody").innerHTML=escapeHtml(out.body).replace(/(#[^\s#，。！？]+)/g,'<span class="ptag">$1</span>');
+  $("#phName").textContent=S.lang==="zh"?(S.mode==="xhs"?"小红书":"朋友圈"):(S.mode==="xhs"?"Rednote":"Moments");
+  // stats
+  const tc=chars(S.mode==="xhs"?S.xhs.title:"");
+  const bc=chars(S.mode==="xhs"?S.xhs.body:S.mom.body);
+  const stT=$("#stTitle"),stB=$("#stBody");
+  stT.textContent=tc; stB.textContent=bc;
+  stT.classList.toggle("over",tc>20);
+  stB.classList.toggle("over",S.mode==="xhs"&&bc>1000);
+  const lineCount=out.body? out.body.split("\n").filter(l=>l.trim()).length:0;
+  $("#stLines").textContent=lineCount;
+  $("#stTags").textContent=S.mode==="xhs"?S.xhs.tags.length:0;
+  $("#tipTitleOver").classList.toggle("show",S.mode==="xhs"&&tc>20);
+  $("#tipBodyOver").classList.toggle("show",S.mode==="xhs"&&bc>1000);
+  $("#tipMomFold").classList.toggle("show",S.mode==="mom"&&lineCount>6);
+}
+function renderChips(){
+  const box=$("#chipBox");box.innerHTML="";
+  S.xhs.tags.forEach((t,i)=>{
+    const c=document.createElement("span");c.className="chip";
+    const tx=document.createElement("span");tx.textContent=t;
+    const b=document.createElement("button");b.textContent="×";b.setAttribute("aria-label","remove");
+    b.onclick=()=>{S.xhs.tags.splice(i,1);renderChips();render();save();};
+    c.append(tx,b);box.append(c);
+  });
+}
+
+/* ---------- i18n & theme ---------- */
+function applyLang(){
+  const d=L[S.lang];
+  $$("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(d[k]!=null)el.textContent=d[k];});
+  $$("[data-i18n-ph]").forEach(el=>{const k=el.dataset.i18nPh;if(d[k]!=null)el.placeholder=d[k];});
+  document.documentElement.lang=S.lang==="zh"?"zh-CN":"en";
+  document.title=d.metaTitle;
+  $("#metaDesc").setAttribute("content",d.metaDesc);
+  $("#ogTitle").setAttribute("content",d.ogT);
+  $("#ogDesc").setAttribute("content",d.ogD);
+  $("#btnLang").textContent=S.lang==="zh"?"EN":"中";
+  render();renderChips();
+}
+const mq=window.matchMedia("(prefers-color-scheme: dark)");
+function applyTheme(){
+  const r=S.theme==="auto"?(mq.matches?"dark":"light"):S.theme;
+  document.documentElement.dataset.theme=r;
+  $("#btnTheme").textContent=r==="dark"?"☀️":"🌙";
+}
+mq.addEventListener("change",()=>{if(S.theme==="auto")applyTheme();});
+
+/* ---------- persistence ---------- */
+let saveTimer=null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{try{localStorage.setItem(DRAFT_KEY,JSON.stringify({xhs:S.xhs,mom:S.mom}));}catch(e){}},400);
+}
+function restore(){
+  try{
+    const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");
+    if(d){Object.assign(S.xhs,d.xhs||{});Object.assign(S.mom,d.mom||{});}
+    const lg=localStorage.getItem("rf_lang");if(lg==="en"||lg==="zh")S.lang=lg;
+    const th=localStorage.getItem("rf_theme");if(th)S.theme=th;
+  }catch(e){}
+}
+
+/* ---------- toast ---------- */
+let toastTimer=null;
+function toast(msg){
+  const t=$("#toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+/* ---------- clipboard ---------- */
+async function copyText(t){
+  if(!t){toast(L[S.lang].cleared);return;}
+  try{await navigator.clipboard.writeText(t);}
+  catch(e){
+    const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e2){}ta.remove();
+  }
+  toast(L[S.lang].copied);
+}
+
+/* ---------- tag generation ---------- */
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function genTags(){
+  const lib=TAGLIB[S.lang];
+  const q=($("#inTopic").value||"").trim();
+  const n=Number($("#selTagCount").value)||6;
+  const lower=q.toLowerCase();
+  const catEntry=Object.entries(lib.cats).find(([k,v])=>v.kw.some(w=>q.includes(w)||lower.includes(w)));
+  const catTags=catEntry? catEntry[1].tags:[];
+  const derived=q? lib.derived(S.lang==="en"?lower:q):[];
+  const pool=[...shuffle(lib.flow).slice(0,2),...shuffle(catTags).slice(0,Math.max(n-4,2)),...derived.slice(0,2)];
+  const seen=new Set(),out=[];
+  for(const t of pool){if(!seen.has(t)){seen.add(t);out.push(t);}}
+  if(q && !out.some(t=>t.slice(1).includes(S.lang==="en"?lower:q))){
+    const dt=S.lang==="en"?`#${lower.replace(/\s+/g,"")}`:`#${q}`;
+    if(!seen.has(dt))out.unshift(dt);
+  }
+  S.xhs.tags=out.slice(0,n);
+  renderChips();render();save();
+}
+
+/* ---------- wiring ---------- */
+function setMode(m){
+  S.mode=m;
+  document.body.dataset.mode=m;
+  $("#tabXhs").classList.toggle("active",m==="xhs");
+  $("#tabMom").classList.toggle("active",m==="mom");
+  $("#panelXhs").hidden=m!=="xhs";
+  $("#panelMom").hidden=m!=="mom";
+  render();
+}
+function bind(){
+  $("#tabXhs").onclick=()=>setMode("xhs");
+  $("#tabMom").onclick=()=>setMode("mom");
+  const map=[
+    ["#inTitle",v=>S.xhs.title=v,"input"],
+    ["#inBody",v=>S.xhs.body=v,"input"],
+    ["#inMomBody",v=>S.mom.body=v,"input"],
+    ["#inCustomDiv",v=>S.xhs.customDiv=v,"input"],
+    ["#selTitleStyle",v=>S.xhs.titleStyle=v,"change"],
+    ["#selDivider",v=>S.xhs.divider=v,"change"],
+    ["#selFreq",v=>S.xhs.freq=v,"change"],
+    ["#selEmoji",v=>S.xhs.emoji=v,"change"],
+    ["#selSpacing",v=>S.xhs.spacing=v,"change"],
+    ["#selAlign",v=>S.mom.align=v,"change"],
+    ["#selCenterW",v=>S.mom.centerW=Number(v),"change"],
+    ["#selBlankTop",v=>S.mom.blankTop=Number(v),"change"],
+    ["#selMomDiv",v=>S.mom.divider=v,"change"]
+  ];
+  map.forEach(([sel,set,ev])=>{
+    const el=$(sel);
+    const h=()=>{set(el.value);render();save();};
+    el.addEventListener(ev,h);
+  });
+  $("#ckBrk").addEventListener("change",e=>{S.xhs.brk=e.target.checked;render();save();});
+  $("#ckFirst").addEventListener("change",e=>{S.mom.first=e.target.checked;render();save();});
+  $("#btnGen").onclick=genTags;
+  $("#btnCopyAll").onclick=()=>copyText((S.mode==="xhs"?formatXhs().full:formatMom().full));
+  $("#btnCopyBody").onclick=()=>copyText(S.mode==="xhs"?formatXhs().body:formatMom().body);
+  $("#btnClear").onclick=()=>{
+    if(S.mode==="xhs"){S.xhs.title="";S.xhs.body="";S.xhs.tags=[];$("#inTitle").value="";$("#inBody").value="";renderChips();}
+    else{S.mom.body="";$("#inMomBody").value="";}
+    render();save();toast(L[S.lang].cleared);
+  };
+  $("#btnDemo").onclick=()=>{
+    const d=L[S.lang];
+    if(S.mode==="xhs"){S.xhs.title=d.demoTitle;S.xhs.body=d.demoBody;$("#inTitle").value=d.demoTitle;$("#inBody").value=d.demoBody;}
+    else{S.mom.body=d.demoMom;$("#inMomBody").value=d.demoMom;}
+    render();save();
+  };
+  $("#btnLang").onclick=()=>{
+    S.lang=S.lang==="zh"?"en":"zh";
+    localStorage.setItem("rf_lang",S.lang);
+    const u=new URL(location);u.searchParams.set("lang",S.lang);
+    history.replaceState(null,"",u);
+    applyLang();
+  };
+  $("#btnTheme").onclick=()=>{
+    S.theme=S.theme==="auto"?"light":S.theme==="light"?"dark":"auto";
+    localStorage.setItem("rf_theme",S.theme);
+    applyTheme();
+  };
+  document.addEventListener("keydown",e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){e.preventDefault();$("#btnCopyAll").click();}
+  });
+}
+
+/* ---------- init ---------- */
+function syncForm(){
+  $("#inTitle").value=S.xhs.title;$("#inBody").value=S.xhs.body;$("#inCustomDiv").value=S.xhs.customDiv;
+  $("#selTitleStyle").value=S.xhs.titleStyle;$("#selDivider").value=S.xhs.divider;$("#selFreq").value=S.xhs.freq;
+  $("#selEmoji").value=S.xhs.emoji;$("#selSpacing").value=S.xhs.spacing;$("#ckBrk").checked=!!S.xhs.brk;
+  $("#inMomBody").value=S.mom.body;$("#selAlign").value=S.mom.align;$("#selCenterW").value=String(S.mom.centerW);
+  $("#selBlankTop").value=String(S.mom.blankTop);$("#selMomDiv").value=S.mom.divider;$("#ckFirst").checked=!!S.mom.first;
+}
+(function init(){
+  const qp=new URLSearchParams(location.search);
+  const ql=qp.get("lang");
+  if(ql==="en"||ql==="zh")S.lang=ql;
+  restore();
+  if(ql==="en"||ql==="zh")S.lang=ql; // URL param wins over saved draft
+  syncForm();applyTheme();bind();applyLang();setMode("xhs");
+})();
+</script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "948f2535a9dd4775a436c677b3c950e4"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
